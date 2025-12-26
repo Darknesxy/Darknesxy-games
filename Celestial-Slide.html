@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Celestial Slide - Darknesxy Games</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050811;
+      --lane: #101522;
+      --accent: #00ffc8;
+      --danger: #ff3366;
+      --text: #f5f5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #182848 0, #02040a 55%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 420px;
+      padding: 12px;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .back-btn {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .game-container {
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 0 32px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      background: linear-gradient(to bottom, #050811 0, #04070f 50%, #000 100%);
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .hud {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      padding: 0 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .hud span {
+      background: rgba(0, 0, 0, 0.55);
+      padding: 4px 8px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(6px);
+    }
+
+    .accent {
+      color: var(--accent);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.6), #000 80%);
+      text-align: center;
+      padding: 16px;
+    }
+
+    .overlay h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .overlay p {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #02040a;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 22px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 11px;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(0, 255, 200, 0.4);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .mobile-controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .ctrl {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: radial-gradient(circle at 30% 20%, #293a52, #050811 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+      user-select: none;
+    }
+
+    .ctrl:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="top-bar">
+      <a href="index.html" class="back-btn">← Back</a>
+      <div class="title">Celestial Slide</div>
+      <div style="width: 36px;"></div>
+    </div>
+
+    <div class="game-container">
+      <canvas id="game" width="320" height="480"></canvas>
+
+      <div class="hud">
+        <span>Score: <span id="score" class="accent">0</span></span>
+        <span>Best: <span id="best" class="accent">0</span></span>
+      </div>
+
+      <div class="overlay" id="overlay">
+        <h2>Tap to Slide</h2>
+        <p>Use ◀ ▶ or buttons below to dodge dark asteroids.</p>
+        <button class="btn" id="startBtn">Play</button>
+        <div class="hint">Keyboard: ◀ ▶ · Mobile: buttons</div>
+      </div>
+    </div>
+
+    <div class="mobile-controls">
+      <div class="ctrl" id="leftBtn">◀</div>
+      <div class="ctrl" id="rightBtn">▶</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    const lanes = [70, 160, 250];
+    const laneWidth = 70;
+
+    const player = {
+      laneIndex: 1,
+      y: canvas.height - 90,
+      width: 32,
+      height: 48,
+      color: "#00ffc8",
+      targetX: lanes[1],
+    };
+
+    let obstacles = [];
+    let speed = 140;
+    let spawnTimer = 0;
+    let spawnInterval = 950;
+    let score = 0;
+    let bestScore = parseInt(localStorage.getItem("celestial_best") || "0");
+    let lastTime = 0;
+    let running = false;
+
+    bestEl.textContent = bestScore;
+
+    function resetGame() {
+      obstacles = [];
+      speed = 140;
+      spawnTimer = 0;
+      spawnInterval = 950;
+      score = 0;
+      scoreEl.textContent = score;
+      player.laneIndex = 1;
+      player.targetX = lanes[1];
+      lastTime = performance.now();
+    }
+
+    function spawnObstacle() {
+      const laneIndex = Math.floor(Math.random() * 3);
+      const size = 28 + Math.random() * 8;
+
+      obstacles.push({
+        laneIndex,
+        x: lanes[laneIndex],
+        y: -40,
+        width: size,
+        height: size,
+        color: "#ff3366",
+      });
+    }
+
+    function update(dt) {
+      const t = Math.min(dt * 12, 1);
+      const desiredX = player.targetX;
+      const currentX =
+        player.x === undefined ? lanes[player.laneIndex] : player.x;
+      player.x = currentX + (desiredX - currentX) * t;
+
+      obstacles.forEach((o) => {
+        o.y += speed * dt;
+      });
+
+      obstacles = obstacles.filter((o) => o.y < canvas.height + 60);
+
+      spawnTimer += dt * 1000;
+      if (spawnTimer >= spawnInterval) {
+        spawnTimer = 0;
+        spawnObstacle();
+        if (spawnInterval > 450) spawnInterval -= 15;
+        speed += 4;
+      }
+
+      const hit = obstacles.some((o) => {
+        const padding = 6;
+        return !(
+          player.x + player.width - padding < o.x - o.width / 2 ||
+          player.x + padding > o.x + o.width / 2 ||
+          player.y + player.height - padding < o.y - o.height / 2 ||
+          player.y + padding > o.y + o.height / 2
+        );
+      });
+
+      if (hit) {
+        running = false;
+        overlay.style.display = "flex";
+        overlay.querySelector("h2").textContent = "Impact!";
+        overlay.querySelector("p").textContent = "You slipped into a dark rift.";
+        startBtn.textContent = "Play Again";
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestEl.textContent = bestScore;
+          localStorage.setItem("celestial_best", bestScore.toString());
+        }
+      } else {
+        score += Math.floor(dt * 60);
+        scoreEl.textContent = score;
+      }
+    }
+
+    function drawLanes() {
+      ctx.save();
+      ctx.fillStyle = "#050811";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalAlpha = 0.65;
+      lanes.forEach((x) => {
+        ctx.fillStyle = "#0e1320";
+        ctx.fillRect(x - laneWidth / 2, 0, laneWidth, canvas.height);
+      });
+
+      ctx.globalAlpha = 1;
+      ctx.setLineDash([8, 12]);
+      ctx.strokeStyle = "rgba(0,255,200,0.25)";
+      ctx.lineWidth = 1;
+      lanes.forEach((x) => {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      ctx.save();
+      ctx.shadowColor = "#00ffc8";
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = player.color;
+      ctx.beginPath();
+      ctx.roundRect(
+        player.x - player.width / 2,
+        player.y,
+        player.width,
+        player.height,
+        10
+      );
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#031b19";
+      ctx.fillRect(
+        player.x - player.width / 2 + 6,
+        player.y + 6,
+        player.width - 12,
+        4
+      );
+      ctx.restore();
+    }
+
+    function drawObstacles() {
+      obstacles.forEach((o) => {
+        ctx.save();
+        ctx.shadowColor = "#ff3366";
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = o.color;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, o.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function loop(timestamp) {
+      if (!running) return;
+
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      update(dt);
+      drawLanes();
+      drawObstacles();
+      drawPlayer();
+
+      requestAnimationFrame(loop);
+    }
+
+    function changeLane(dir) {
+      if (!running) return;
+      player.laneIndex += dir;
+      if (player.laneIndex < 0) player.laneIndex = 0;
+      if (player.laneIndex > 2) player.laneIndex = 2;
+      player.targetX = lanes[player.laneIndex];
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") changeLane(-1);
+      if (e.key === "ArrowRight") changeLane(1);
+    });
+
+    leftBtn.addEventListener("click", () => changeLane(-1));
+    rightBtn.addEventListener("click", () => changeLane(1));
+
+    startBtn.addEventListener("click", () => {
+      resetGame();
+      overlay.style.display = "none";
+      running = true;
+      requestAnimationFrame((ts) => {
+        lastTime = ts;
+        loop(ts);
+      });
+    });
+
+    drawLanes();
+  </script>
+</body>
+</html>
