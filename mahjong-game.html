@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Mahjong - Darknesxy Games</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      background: #111;
+      position: relative;
+    }
+    .back-btn {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .frame-wrap {
+      flex: 1;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <h2>Travel Mahjong</h2>
+  </header>
+
+  <div class="frame-wrap">
+    <!-- Game embed -->
+    <div>
+      <script src="https://cdn.htmlgames.com/embed.js?game=TravelMahjong&bgcolor=white"></script>
+    </div>
+  </div>
+</body>
+</html>
