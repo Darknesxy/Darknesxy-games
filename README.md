@@ -29,7 +29,7 @@
 
 ## ⚡ **1-Click Setup**
 
-**http://localhost:3000** → **Game On!** 🎯[web:13]
+** https://darknesxy.github.io/Darknesxy-games/ → **Game On!** 🎯[web:13]
 
 <div align="center">
 <img src="https://github-readme-stats.vercel.app/api?username=yourusername&show_icons=true&theme=radical&hide_border=true&include_all_commits=true" width="48%"/>
