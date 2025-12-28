@@ -64,8 +64,8 @@
 <tr>
 <td align="center">
   <img src="https://avatars.githubusercontent.com/yourusername" width="120px"/>
-  <br><b>Your Name</b>
-  <br>🎮 Lead Game Dev
+  <br><b>Subojit Das Sarkar</b>
+  <br>🎮 S.D
 </td>
 </tr>
 </table>[web:4]
